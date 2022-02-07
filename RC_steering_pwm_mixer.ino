@@ -1,16 +1,14 @@
-/* Sweep
- by BARRAGAN <http://barraganstudio.com>
- This example code is in the public domain.
-
- modified 8 Nov 2013
- by Scott Fitzgerald
- http://www.arduino.cc/en/Tutorial/Sweep
+/* 
+Bart Theys, with inspiration from:
+http://barraganstudio.com>
+http://www.arduino.cc/en/Tutorial/Sweep
+used on an arduino nano
 */
 
 #include <Servo.h>
 #include <ServoInput.h>
  
-ServoInputPin<2> servo1; //throttle wheel
+ServoInputPin<2> servo1; // steering wheel
 ServoInputPin<3> servo2; // throttle stick
 Servo myservo1;  // create servo object to control a servo
 Servo myservo2;
@@ -18,14 +16,17 @@ Servo myservo2;
 
 // twelve servo objects can be created on most boards
 
+// configuration
+float wheelbase= 0.4; //virtual length between main differential wheels and virtual steering wheels
+float trackwidth=0.4; //real width between the wheels
+float betamax=0.6; //0.1; //0.785; //45/180*Pi;  //virtual max steering angle = atan(wheelbase/min_turn_radius)
+float throttle_max=1;   //factor that scales the throttle input, 1 allows for full throttle, decrease to decrease the maximum throttle
+
+
 int pos = 0;    // variable to store the servo position
 float angle_in1 = 90;
 float angle_in2 = 90;
-
-float wheelbase= 0.4; // length between main differential wheels and virtual steering wheels
-float trackwidth=0.4; //real width between the wheels
 float Pi = 3.14159;
-float betamax=0.6; //0.1; //0.785; //45/180*Pi;  //virtual max steering angle = atan(wheelbase/min_turn_radius)
 float steering = 0;
 float throttle = 0;
 float beta = 0;
@@ -83,8 +84,10 @@ throttle_lim=throttle;
 
 if (abs(beta)>0)
 {
-throttle_lim = throttle/(1+trackwidth/(2*wheelbase)*abs(tan(beta)));   //limit the throttle so that maximum steering angle is always possible at full throttle input without exceeding the max speed/input of the outboard motor
+throttle_lim = throttle/(1+trackwidth/(2*wheelbase)*abs(tan(beta)));   //scale the throttle so that any steering angle is always possible at full throttle input without exceeding the max speed/input of the outboard motor
 }
+ 
+
 
 PWM1 = throttle_lim*(1+trackwidth*tan(beta)/(2*wheelbase));
 PWM2 = throttle_lim*(1-trackwidth*tan(beta)/(2*wheelbase));

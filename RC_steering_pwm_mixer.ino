@@ -80,14 +80,15 @@ steering = map(angle_in1,0,180,-1000,1000);  //steering angle input from -1000 t
  }
 
 beta = steering*betamax/1000;  // virtual steering angle
-throttle_lim=throttle;
+throttle_lim=1;
 
-if (abs(beta)>0)
+
+if (abs(beta)>0) // further scale the throttle with the current steering input (perhaps we can calculate the scaling factor below , and then use the smallest of the two)
 {
-throttle_lim = throttle/(1+trackwidth/(2*wheelbase)*abs(tan(beta)));   //scale the throttle so that any steering angle is always possible at full throttle input without exceeding the max speed/input of the outboard motor
+throttle_lim = 1/(1+trackwidth/(2*wheelbase)*abs(tan(beta)));   //scale the throttle so that any steering angle is always possible at full throttle input without exceeding the max speed/input of the outboard motor
 }
  
-
+throttle=throttle*min(throttle_max,throttle_lim); //scale the throttle input with the smallest scaling factor (limit max speed, or make sure full turns are possible without exceeding the max speed to one channel)
 
 PWM1 = throttle_lim*(1+trackwidth*tan(beta)/(2*wheelbase));
 PWM2 = throttle_lim*(1-trackwidth*tan(beta)/(2*wheelbase));
